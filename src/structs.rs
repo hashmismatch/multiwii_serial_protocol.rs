@@ -1,0 +1,452 @@
+//! MSP structures
+
+use prelude::v1::*;
+
+#[derive(PackedStruct, Serialize, Deserialize,  Debug, Copy, Clone)]
+pub struct MspApiVersion {
+    pub protocol_version: u8,
+    pub api_version_major: u8,
+    pub api_version_minor: u8
+}
+
+
+#[derive(PackedStruct, Serialize, Deserialize,  Debug, Copy, Clone)]
+pub struct MspFlightControllerVariant {
+    pub identifier: [u8; 4]
+}
+
+
+#[derive(PackedStruct, Serialize, Deserialize,  Debug, Copy, Clone)]
+pub struct MspFlightControllerVersion {
+    pub major: u8,
+    pub minor: u8,
+    pub patch: u8
+}
+
+#[derive(PackedStruct, Serialize, Deserialize,  Debug, Copy, Clone)]
+#[packed_struct(endian="lsb")]
+pub struct MspBoardInfo {
+    pub board_id: [u8; 4],
+    pub hardware_revision: u16,
+    pub fc_type: u8
+}
+
+#[derive(PackedStruct, Serialize, Deserialize,  Debug, Copy, Clone)]
+pub struct MspBuildInfo {
+    pub date_str: [u8; 11],
+    pub time_str: [u8; 8],
+    pub git_str: [u8; 7]
+}
+
+#[derive(PackedStruct, Serialize, Deserialize,  Debug, Copy, Clone)]
+pub struct MspUniqueId {
+    pub uid: [u8; 12]
+}
+
+#[derive(PackedStruct, Serialize, Deserialize,  Debug, Copy, Clone)]
+#[packed_struct(bytes="1", endian="lsb", bit_numbering="msb0")]
+pub struct MspAvailableSensors {
+    #[packed_field(bits="2")]
+    pub sonar: bool,
+    #[packed_field(bits="4")]
+    pub gps: bool,
+    #[packed_field(bits="5")]
+    pub mag: bool,
+    #[packed_field(bits="6")]
+    pub baro: bool,
+    #[packed_field(bits="7")]
+    pub acc: bool
+}
+
+#[derive(PackedStruct, Serialize, Deserialize,  Debug, Copy, Clone)]
+#[packed_struct(endian="lsb")]
+pub struct MspStatus {
+    pub cycle_time: u16,
+    pub i2c_errors: u16,
+    #[packed_field(size_bits="8")]
+    pub sensors: MspAvailableSensors,
+    pub null1: u8,
+    pub flight_mode: u32,
+    pub profile: u8,
+    pub system_load: u16
+}
+
+#[derive(PackedStruct, Serialize, Deserialize,  Debug, Copy, Clone)]
+#[packed_struct(endian="lsb")]
+pub struct MspStatusEx {
+    pub cycle_time: u16,
+    pub i2c_errors: u16,
+    #[packed_field(size_bits="8")]
+    pub sensors: MspAvailableSensors,
+    pub null1: u8,
+    pub flight_mode: u32,
+    pub current_pid_profile_index: u8,
+    pub average_system_load_percent: u16,
+    pub max_profile_count: u8,
+    pub current_control_rate_profile_index: u8
+}
+
+#[derive(PackedStruct, Serialize, Deserialize,  Debug, Copy, Clone, Default)]
+#[packed_struct(endian="lsb")]
+pub struct MspBfConfig {
+    pub mixer_configuration: u8,
+    pub features: u32,
+    pub serial_rx_provider: u8,
+    pub board_align_roll: i16,
+    pub board_align_pitch: i16,
+    pub board_align_yaw: i16,
+    pub current_scale: i16,
+    pub current_offset: i16
+}
+
+#[derive(PackedStruct, Serialize, Deserialize,  Debug, Copy, Clone)]
+#[packed_struct(endian="lsb")]
+pub struct MspRawImu {
+    pub acc_x: i16,
+    pub acc_y: i16,
+    pub acc_z: i16,
+    pub gyro_x: i16,
+    pub gyro_y: i16,
+    pub gyro_z: i16,
+    pub mag_x: i16,
+    pub mag_y: i16,
+    pub mag_z: i16
+}
+
+#[derive(PackedStruct, Serialize, Deserialize,  Debug, Copy, Clone)]
+#[packed_struct(bytes="1", endian="lsb", bit_numbering="msb0")]
+pub struct MspDataFlashSummaryReply {
+    #[packed_field(bits="6")]
+    pub supported: bool,
+    #[packed_field(bits="7")]
+    pub ready: bool,
+    pub sectors: u32,
+    pub total_size_bytes: u32,
+    pub used_size_bytes: u32
+}
+
+#[derive(PackedStruct, Serialize, Deserialize,  Debug, Copy, Clone)]
+#[packed_struct(endian="lsb")]
+pub struct MspAccTrim {
+    pub pitch: u16,
+    pub roll: u16
+}
+
+#[derive(PackedStruct, Serialize, Deserialize,  Debug, Copy, Clone)]
+#[packed_struct(endian="lsb")]
+pub struct MspIdent {
+    pub version: u8,
+    pub mixer_mode: u8,
+    pub protocol_version: u8,
+    pub capability: u32
+}
+
+#[derive(PackedStruct, Serialize, Deserialize,  Debug, Copy, Clone)]
+#[packed_struct(endian="lsb")]
+pub struct MspMisc {
+    pub rx_mid_rc: u16,
+    pub min_throttle: u16,
+    pub max_throttle: u16,
+    pub min_command: u16,
+    pub failsafe_throttle: u16,
+
+    pub gps_type: u8,
+    pub gps_baudrate: u8,
+    pub gps_sbas_mode: u8,
+
+    pub current_meter_output: u8,
+    pub rssi_channel: u8,
+    pub null1: u8,
+
+    pub compass_mag_declination: u16
+}
+
+#[derive(PackedStruct, Serialize, Deserialize,  Debug, Copy, Clone)]
+#[packed_struct(endian="lsb")]
+pub struct MspAttitude {
+    pub roll: i16,
+    pub pitch: i16,
+    pub yaw: i16
+}
+
+#[derive(PackedStruct, Serialize, Deserialize,  Debug, Copy, Clone)]
+#[packed_struct(endian="lsb")]
+pub struct MspAltitude {
+    /// [centimeters]
+    pub altitude: i32,
+    /// variometer [cm/s]
+    pub vario: i16
+}
+
+
+#[derive(PackedStruct, Serialize, Deserialize,  Debug, Copy, Clone)]
+#[packed_struct(endian="lsb")]
+pub struct MspBatteryConfig {
+    pub vbat_min_cell_voltage: u8,
+    pub vbat_max_cell_voltage: u8,
+    pub vbat_warning_cell_voltage: u8,
+    pub battery_capacity: u16,
+    pub voltage_meter_source: u8,
+    pub current_meter_source: u8
+}
+
+#[derive(PackedStruct, Serialize, Deserialize,  Debug, Copy, Clone)]
+#[packed_struct(endian="lsb")]
+pub struct MspAnalog {
+    pub battery_voltage: u8,
+    pub mah_drawn: u16,
+    pub rssi: u16,
+    /// Current in 0.01A steps, range is -320A to 320A
+    pub amperage: i16
+}
+
+#[derive(PackedStruct, Serialize, Deserialize,  Debug, Copy, Clone)]
+#[packed_struct(endian="lsb")]
+pub struct MspRssiConfig {
+    pub rssi_channel: u8
+}
+
+#[derive(PackedStruct, Serialize, Deserialize,  Debug, Copy, Clone)]
+pub struct MspVoltageMeter {
+    pub id: u8,
+    pub value: u8
+}
+
+#[derive(PackedStruct, Serialize, Deserialize,  Debug, Copy, Clone)]
+#[packed_struct(endian="lsb")]
+pub struct MspCurrentMeter {
+    pub id: u8,
+    pub mah_drawn: u16,
+    /// In 0.001A steps (mA)
+    pub amperage: u16
+}
+
+#[derive(PackedStruct, Serialize, Deserialize,  Debug, Copy, Clone)]
+#[packed_struct(endian="lsb")]
+pub struct MspBatteryState {
+    pub battery_cell_count: u8,
+    /// mAh
+    pub battery_capacity: u16,
+
+    pub battery_voltage: u8,
+    pub mah_drawn: u16,
+    /// 0.01A
+    pub amperage: i16,
+
+    pub alerts: u8
+}
+
+#[derive(PackedStruct, Serialize, Deserialize,  Debug, Copy, Clone, Default)]
+#[packed_struct(endian="lsb")]
+pub struct MspRcTuning {
+    pub rc_rate8: u8,
+    pub rc_expo8: u8,
+    
+    pub rate_roll: u8,
+    pub rate_pitch: u8,
+    pub rate_yaw: u8,
+
+    pub dyn_thr_pid: u8,
+    pub thr_mid8: u8,
+    pub thr_expo8: u8,
+    pub tpa_breakpoint: u16,
+    pub rc_yaw_expo8: u8,
+    pub rc_yaw_rate8: u8
+}
+
+#[derive(PackedStruct, Serialize, Deserialize,  Debug, Copy, Clone, Default)]
+#[packed_struct(endian="lsb")]
+pub struct MspRxConfig {
+    pub serialrx_provider: u8,
+    pub maxcheck: u16,
+    pub midrc: u16,
+    pub mincheck: u16,
+    pub spektrum_sat_bind: u8,
+    pub rx_min_usec: u16,
+    pub rx_max_usec: u16,
+    pub rc_interpolation: u8,
+    pub rc_interpolation_interval: u8,
+    pub air_mode_activate_threshold: u16,
+    pub rx_spi_protocol: u8,
+    pub rx_spi_id: u32,
+    pub rx_spi_rf_channel_count: u8,
+    pub fpv_cam_angle_degrees: u8
+}
+
+#[derive(PackedStruct, Serialize, Deserialize,  Debug, Copy, Clone, Default)]
+#[packed_struct(endian="lsb")]
+pub struct MspRcChannelValue {
+    pub value: u16
+}
+
+#[derive(PrimitiveEnum_u8, Serialize, Deserialize, Debug, Copy, Clone, PartialEq)]
+pub enum MspRcChannel {
+    /// Ailerons
+    Roll = 0,
+    /// Elevators
+    Pitch = 1,
+    /// Rudder
+    Yaw = 2,
+    Throttle = 3,
+    Aux1 = 4,
+    Aux2 = 5,
+    Aux3 = 6,
+    Aux4 = 7,
+    Aux5 = 8,
+    Aux6 = 9,
+    Aux7 = 10,
+    Aux8 = 11,
+    Aux9 = 12,
+    Aux10 = 13,
+    Aux11 = 14,
+    Aux12 = 15,
+    Aux13 = 16,
+    Aux14 = 17,
+    Aux15 = 18,
+    Aux16 = 19
+}
+
+#[derive(PackedStruct, Serialize, Deserialize,  Debug, Copy, Clone)]
+pub struct MspRcMappedChannel {
+    #[packed_field(size_bits="8", ty="enum")]
+    pub channel: MspRcChannel
+}
+
+#[derive(PackedStruct, Serialize, Deserialize,  Debug, Copy, Clone, Default)]
+pub struct MspFeatures {
+    pub features: [bool; 32]
+}
+
+#[derive(PackedStruct, Serialize, Deserialize,  Debug, Copy, Clone, Default)]
+#[packed_struct(endian="lsb")]
+pub struct MspMotor {
+    pub motors: [u16; 8]
+}
+
+#[derive(PackedStruct, Serialize, Deserialize,  Debug, Copy, Clone, Default)]
+#[packed_struct(endian="lsb")]
+pub struct MspMotor3DConfig {
+    pub deadband_3d_low: u16,
+    pub deadband_3d_high: u16,
+    pub neutral_3d: u16
+}
+
+#[derive(PackedStruct, Serialize, Deserialize,  Debug, Copy, Clone, Default)]
+#[packed_struct(endian="lsb")]
+pub struct MspMotorConfig {
+    pub min_throttle: u16,
+    pub max_throttle: u16,
+    pub min_command: u16
+}
+
+#[derive(PackedStruct, Serialize, Deserialize,  Debug, Copy, Clone, Default)]
+#[packed_struct(endian="lsb")]
+pub struct MspRcDeadband {
+    pub deadband: u8,
+    pub yaw_deadband: u8,
+    pub alt_hold_deadband: u8,
+    pub deadband_3d_throttle: u16
+}
+
+#[derive(PackedStruct, Serialize, Deserialize,  Debug, Copy, Clone, Default)]
+#[packed_struct(endian="lsb")]
+pub struct MspSensorAlignment {
+    pub gyro_alignment: u8,
+    pub acc_alignment: u8,
+    pub mag_alignment: u8
+}
+
+#[derive(PackedStruct, Serialize, Deserialize,  Debug, Copy, Clone, Default)]
+#[packed_struct(endian="lsb")]
+pub struct MspAdvancedConfig {
+    pub gyro_sync_denom: u8,
+    pub pid_process_denom: u8,
+    pub use_unsynced_pwm: u8,
+    pub motor_pwm_protocol: u8,
+    pub motor_pwm_rate: u16,
+    pub digital_idle_offset_percent: u16,
+    pub gyro_use_32khz: u8,
+    pub motor_pwm_inversion: u8
+}
+
+
+#[derive(PackedStruct, Serialize, Deserialize,  Debug, Copy, Clone, Default)]
+#[packed_struct(endian="lsb")]
+pub struct MspFilterConfig {
+    pub gyro_soft_lpf_hz: u8,
+    pub dterm_lpf_hz: u16,
+    pub yaw_lpf_hz: u16,
+    pub gyro_soft_notch_hz_1: u16,
+    pub gyro_soft_notch_cutoff_1: u16,
+    pub dterm_notch_hz: u16,
+    pub dterm_notch_cutoff: u16,
+    pub gyro_soft_notch_hz_2: u16,
+    pub gyro_soft_notch_cutoff_2: u16
+}
+
+#[derive(PackedStruct, Serialize, Deserialize,  Debug, Copy, Clone, Default)]
+#[packed_struct(endian="lsb")]
+pub struct MspPidAdvanced {
+    pub _r1: u16,
+    pub _r2: u16,
+    pub _r3: u16,
+    pub _r4: u8,
+    pub vbat_pid_compensation: u8,
+    pub setpoint_relax_ratio: u8,
+    pub dterm_setpoint_weight: u8,
+    pub _r5: u8,
+    pub _r6: u8,
+    pub _r7: u8,
+    pub rate_accel_limit: u16,
+    pub yaw_rate_accel_limit: u16,
+    pub level_angle_limit: u8,
+    pub level_sensitivity: u8
+}
+
+#[derive(PackedStruct, Serialize, Deserialize,  Debug, Copy, Clone, Default)]
+#[packed_struct(endian="lsb")]
+pub struct MspSensorConfig {
+    pub acc_hardware: u8,
+    pub baro_hardware: u8,
+    pub mag_hardware: u8
+}
+
+#[derive(PackedStruct, Serialize, Deserialize,  Debug, Copy, Clone, Default)]
+#[packed_struct(endian="lsb")]
+pub struct MspServos {
+    pub servos: [u16; 8]
+}
+
+#[derive(PackedStruct, Serialize, Deserialize,  Debug, Copy, Clone)]
+#[packed_struct(endian="lsb")]
+pub struct MspMixerConfig {
+    #[packed_field(size_bits="8", ty="enum")]
+    pub mixer_mode: MixerMode
+}
+
+#[derive(PrimitiveEnum_u8, Serialize, Deserialize, Debug, Copy, Clone, PartialEq)]
+pub enum MixerMode {
+    Tri = 1,
+    QuadPlus = 2,
+    QuadX = 3,
+    Bicopter = 4,
+    Gimbal = 5,
+    Y6 = 6,
+    Hex6 = 7,
+    FlyingWing = 8,
+    Y4 = 9,
+    Hex6X = 10,
+    OctoX8 = 11
+}
+
+#[test]
+fn test_mixer() {
+    use packed_struct::prelude::*;
+
+    let m = MspMixerConfig {
+        mixer_mode: MixerMode::QuadX
+    };
+    assert_eq!(3, m.mixer_mode.to_primitive());
+    let p = m.pack();
+    assert_eq!(&[3], &p);
+}
