@@ -2,14 +2,14 @@
 name = "multiwii_serial_protocol"
 description = "A Multiwii Serial Protocol (MSP) implementation for Rust"
 repository = "https://github.com/hashmismatch/multiwii_serial_protocol.rs"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Rudi Benkovic <rudi.benkovic@gmail.com>"]
 license = "MIT OR Apache-2.0"
 readme = "README.md"
 
 [dependencies]
-packed_struct = "^0.1.0"
-packed_struct_codegen = "^0.1.0"
+packed_struct = "0.2"
+packed_struct_codegen = "0.2"
 serde = "1.0"
 serde_derive = "1.0"
 
